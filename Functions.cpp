@@ -27,21 +27,28 @@ if (f.fail()){
 	cout<<"Could not open file.\n";
 	return(1);
 }
+//IGNORE
+//char ch;
+//	ch = f.peek();
+//	if (ch == '1951'){cin.ignore(1,'1951');}
+//for (int lineno = 0; f.getline(ch, 256) && lineno < 3; lineno++){
+//	f.ignore(ch);
+//	}
 
-//char ig = 'Tidsutsnitt:\n';
-//f.ignore(256, ig);
 char fline[256];
-//char delm = ';';
-//string delim = "\n";
 char delim = '\n';
 char ddel = '-';
-
+double temp;
+vector<double> temps;
+int entries=0;
 while (f.getline(fline, 256, delim)) 
 {
 vector<string> v = split(fline, ";");
 for (int i = 0; i < v.size(); i++){
 //cout << v[i] << " " << endl;
 }
+temp = atof(v[2].c_str()); //turns string into double
+//cout << temp << endl;
 vector<string> date = split(v[0], "-");
 //cout << date[0] << " , " << date[1] << " , " << date[2] << endl;
 int year;
@@ -52,23 +59,14 @@ istringstream(date[1]) >> month;
 istringstream(date[2]) >> day;
 if (month == monthToCalculate && day == dayToCalculate){
 	cout << " The temperature on " <<month<<"/"<<day << " was " << v[2] << " degrees" << endl; 
+	temps.push_back(temp);
+	entries++;
+//	cout << temps[0] << endl;
 	}
 }
-
-
-//for (int n=0; n <v.size(); n++){
-//	date.at(n) = atoi(v.at(n))
-//	cout << date[0] << endl;
-//}	
-//if (date[1] = monthToCalculate){
-//cout << date[1] << endl;
-//}
-//for plotting:
-//for (int i=0; i<n; i++){
-//x[i] = v[0];
-//y[i] = v[1];
-//}	
-//cout << x[n] << endl;	
-
+//cout << entries << endl;
+for (int n = 0; n<temps.size(); n++){
+	cout << temps[n] << endl;
+	}
 }
 
