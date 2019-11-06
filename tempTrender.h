@@ -2,7 +2,7 @@
 #define TEMPTRENDER_H
 
 #include <string>
-
+#include <vector>
 //This is the file that will contain the list of data and function members
 class tempTrender {
 	public:

@@ -21,14 +21,21 @@ tempTrender::tempTrender(string filePath) {
 }
 
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
+gStyle->SetOptTitle(0);	
+
+
 delete_lines("smhi-openda_Karlstad_1.csv", 12);
-//int monthToCalculate = 1; 
-//int dayToCalculate = 2;
+//int monthToCalculate = 8; 
+//int dayToCalculate = 23;
 ifstream f("smhi-openda_Karlstad_1.csv"); //opening the file for reading
 if (f.fail()){
 	cout<<"Could not open file.\n";
-//	return(1);
 }
+
+TCanvas * c1= new TCanvas("Temperature On Day ", "Temperature on a Day Throughout the Years", 1920, 1080);
+TH1D* hist = new TH1D("temperature","Temperature;Temperature[#circC];Entries", 300, -20,40);
+
+hist->SetFillColor(kRed +1 );
 f.ignore(256, '\n');
 char fline[256];
 char delim = '\n';
@@ -39,12 +46,9 @@ int entries=0;
 while (f.getline(fline, 256, delim)) 
 {
 vector<string> v = split(fline, ";");
-for (unsigned int i = 0; i < v.size(); i++){
-//cout << v[i] << " " << endl;
-}
-temp = atof(v[2].c_str()); //turns string into double
+temp = atof(v.at(2).c_str()); //turns string into double
 //cout << temp << endl;
-vector<string> date = split(v[0], "-");
+vector<string> date = split(v.at(0), "-");
 //cout << date[0] << " , " << date[1] << " , " << date[2] << endl;
 int year;
 int month;
@@ -53,25 +57,17 @@ istringstream(date[0]) >> year;
 istringstream(date[1]) >> month;
 istringstream(date[2]) >> day;
 if (month == monthToCalculate && day == dayToCalculate){
-	cout << " The temperature on " <<month<<"/"<<day << " was " << v[2] << " degrees" << endl; 
 	temps.push_back(temp);
-	entries++;
-//	cout << temps[0] << endl;
+	hist->Fill(temp); //Going to become redundant as we make a function to take a vector and fill a histogram.
 	}
 }
-TH1I* hist = new TH1I("temperature", "Temperature;Temperature[#circC];Entries", 300, -20,40);
-hist->SetFillColor(kRed +1 );
-
-//cout << entries << endl;
-for (unsigned int n = 0; n<temps.size(); n++){
-	cout << temps[n] << endl;
-	hist->Fill(temps[n]);
-	}
+f.close();
 	
 double mean = hist->GetMean();
 double stdev = hist->GetRMS();
-TCanvas* can = new TCanvas();
-hist->Draw();		
+
+hist->Draw();	
+c1->SaveAs("TempOnDayHist.jpg");	
 }
 
 vector<std::string> tempTrender::split(string s, string delimiter){
