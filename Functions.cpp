@@ -19,22 +19,36 @@ using namespace std;
 		return res;
 }
 
+void delete_lines(const char *file_name, int n){
+	
+	ifstream is(file_name);
+	ofstream ofs;
+	ofs.open("temp.csv", ofstream::out);
+	char c;
+	int line_no=1;
+	while (is.get(c)){
+		if(c == '\n'){
+		line_no++;}
+		if (line_no > n){
+		ofs << c;}
+		}
+//		cout << line_no << endl;
+		ofs.close();
+		is.close();
+		remove(file_name);
+		rename("temp.csv", file_name);
+	}
+
 int main(){
+delete_lines("smhi-openda_Karlstad_1.csv", 12);
 int monthToCalculate = 1; 
 int dayToCalculate = 2;
-ifstream f("fakedata.csv"); //opening the file for reading
+ifstream f("smhi-openda_Karlstad_1.csv"); //opening the file for reading
 if (f.fail()){
 	cout<<"Could not open file.\n";
 	return(1);
 }
-//IGNORE
-//char ch;
-//	ch = f.peek();
-//	if (ch == '1951'){cin.ignore(1,'1951');}
-//for (int lineno = 0; f.getline(ch, 256) && lineno < 3; lineno++){
-//	f.ignore(ch);
-//	}
-
+f.ignore(256, '\n');
 char fline[256];
 char delim = '\n';
 char ddel = '-';
