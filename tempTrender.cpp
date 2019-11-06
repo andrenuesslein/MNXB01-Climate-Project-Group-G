@@ -21,35 +21,29 @@ tempTrender::tempTrender(string filePath) {
 }
 
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
-gStyle->SetOptTitle(0);	
+
 
 
 delete_lines("smhi-openda_Karlstad_1.csv", 12);
-//int monthToCalculate = 8; 
-//int dayToCalculate = 23;
 ifstream f("smhi-openda_Karlstad_1.csv"); //opening the file for reading
 if (f.fail()){
 	cout<<"Could not open file.\n";
 }
 
-TCanvas * c1= new TCanvas("Temperature On Day ", "Temperature on a Day Throughout the Years", 1920, 1080);
-TH1D* hist = new TH1D("temperature","Temperature;Temperature[#circC];Entries", 300, -20,40);
+TH1D* hist = new TH1D("Histogram","Temperature On a Day Throughout the Years; Temperature[#circC]; Entries", 300, -20,40);
 
-hist->SetFillColor(kRed +1 );
 f.ignore(256, '\n');
 char fline[256];
 char delim = '\n';
 char ddel = '-';
 double temp;
 vector<double> temps;
-int entries=0;
 while (f.getline(fline, 256, delim)) 
 {
 vector<string> v = split(fline, ";");
 temp = atof(v.at(2).c_str()); //turns string into double
-//cout << temp << endl;
+
 vector<string> date = split(v.at(0), "-");
-//cout << date[0] << " , " << date[1] << " , " << date[2] << endl;
 int year;
 int month;
 int day;
@@ -62,9 +56,13 @@ if (month == monthToCalculate && day == dayToCalculate){
 	}
 }
 f.close();
-	
+
+TCanvas* c1 = new TCanvas("c1", "Temperature on a Day Throughout the Years", 900, 600);
 double mean = hist->GetMean();
 double stdev = hist->GetRMS();
+
+hist->SetFillColor(kRed);
+hist->SetMinimum(0);
 
 hist->Draw();	
 c1->SaveAs("TempOnDayHist.jpg");	
@@ -101,24 +99,5 @@ void tempTrender::delete_lines(const char *file_name, int n){
 		is.close();
 		remove(file_name);
 		rename("temp.csv", file_name);
-}
-
-void tempTrender::tempOnDayAndre(int monthToCalculate, int dayToCalculate){
-	
-	ifstream file("smhi-openda_Karlstad_1.csv"); //opening the file for reading
-
-	cout << "Hello!" <<endl; //This is just to test
-	
-	string helpstring; // help variable for "-" and ";" and the like
-	string Temperature;
-	string year;
-	string hour;
-	string minute;
-	string second;
-
-	while(file >> year >> helpstring >> monthToCalculate >> helpstring >> dayToCalculate >> helpstring >> hour >> helpstring >> minute >> helpstring >> second >> helpstring >> Temperature >> helpstring >> helpstring) {
-		cout << "The temperature on that day in the year " << year << " at the time " << hour << " is " << Temperature;
 	}
-
-}
 
