@@ -101,5 +101,24 @@ void tempTrender::delete_lines(const char *file_name, int n){
 		is.close();
 		remove(file_name);
 		rename("temp.csv", file_name);
+}
+
+void tempTrender::tempOnDayAndre(int monthToCalculate, int dayToCalculate){
+	
+	ifstream file("smhi-openda_Karlstad_1.csv"); //opening the file for reading
+
+	cout << "Hello!" <<endl; //This is just to test
+	
+	string helpstring; // help variable for "-" and ";" and the like
+	string Temperature;
+	string year;
+	string hour;
+	string minute;
+	string second;
+
+	while(file >> year >> helpstring >> monthToCalculate >> helpstring >> dayToCalculate >> helpstring >> hour >> helpstring >> minute >> helpstring >> second >> helpstring >> Temperature >> helpstring >> helpstring) {
+		cout << "The temperature on that day in the year " << year << " at the time " << hour << " is " << Temperature;
 	}
+
+}
 
