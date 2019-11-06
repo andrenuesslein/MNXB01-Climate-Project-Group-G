@@ -2,7 +2,7 @@
 #define TEMPTRENDER_H
 
 #include <string>
-
+#include <vector>
 //This is the file that will contain the list of data and function members
 class tempTrender {
 	public:
@@ -10,7 +10,6 @@ class tempTrender {
 	~tempTrender() {} //Destructor
 	
 	void tempOnDay(int monthToCalculate, int dayToCalculate); //Make a histogram of the temperature on this day
-	void tempOnDayAndre(int monthToCalculate, int dayToCalculate); //Make a histogram of the temperature on this day
 	void delete_lines(const char *file_name, int n);
 	vector<std::string> split(string s, string delimiter);
 	
