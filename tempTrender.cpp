@@ -24,101 +24,53 @@ tempTrender::tempTrender(string filePath) {
 
 //What does this function do?
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
-{
-	int integer;
-	
-	ifstream myFile("smhi-openda_Karlstad.csv");
-
-	if (!myFile.is_open())
-	{
-		cout << "File is open" << endl;
+	//Create Vectors to contain all data.
+	vector<double> year, month, day, time, temp;
+	//Indexing value for the constructed vectors.
+	int i=0, junk=0;
+	//Creating a value which will continually be overwritten by the string value
+	double OverWriteDouble=0.0;
+	ifstream f("datasets/smhi-openda_Karlstad.csv"); //opening the file for reading //change to filepath
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
 	}
-
-	vector<string> year(430000);
-	vector<string> month(430000);
-	vector<string> day(430000);
-	vector<string> time(430000);
-	vector<string> temp(430000);
-	vector<string> test(10);
-	vector<int> x(10);
-	int vectorSize= 430000;
-	int counter = 0;
-	int m=0;
-	
+	//Histogram
 	TH1D* hist = new TH1D("Histogram","Temperature On a Day Throughout the Years; Temperature[#circC]; Entries", 300, -20,40);
-
-	while (myFile.good())
-	{
-
-		for (int j=0; j<10 ; j++)
-		{
-			myFile.ignore(5000, '\n');
-			
-		}		
-		
-		do
-		{	
-			getline(myFile, test[m], '\n');
-			stringstream geek(test[m]);
-			geek >> x[m];
-			cout << x[m] << endl;
-			m++;
-				
-		}
-		while( x.at(m) != 0 );
-		
-		
-		
-		
-		 	
 	
-		for (int i=0; i < vectorSize ; i++)
-		{
-	 
+	//Pruning Initial Entries.
+	for (int j=0; j<10 ; j++){
+		f.ignore(5000, '\n');
+	}		
 
-			getline(myFile, year[i], '-');
-			getline(myFile, month[i], '-');
-			getline(myFile, day[i], ';');
-			getline(myFile, time[i], ';');
-			getline(myFile, temp[i], ';');
-			myFile.ignore(400, '\n');
-			
-				double y=0.;
-				stringstream yeek(month.at(i));
-				yeek >> y;
-			
-				double z=0.;
-				stringstream zeek(day.at(i));
-				zeek >> z;
-				
-			if (y == monthToCalculate && z == dayToCalculate){
-				double x=0.;
-				stringstream geek(temp.at(i));
-				geek >> x;
-				hist->Fill(x); //Going to become redundant as we make a function to take a vector and fill a histogram.
-			}
-
+	while (getline(f, s, '\n')){
+		if (junk == 0 ){
+			StoI(junk, s);
+			 }
+		else{
+			//Sorting the relevant data into vectors
+			getline(f, s, '-');
+				VectorConstructor(year, s);	
+			getline(f, s, '-');
+				VectorConstructor(month, s);	
+			getline(f, s, ';');
+				VectorConstructor(day, s);	
+			getline(f, s, ';');
+				VectorConstructor(time, s);
+			getline(f, s, ';');
+				VectorConstructor(temp, s);
+			f.ignore(400, '\n');
+			//If the data 
+			if (month.at(i) == monthToCalculate && day.at(i) == dayToCalculate){
+				hist->Fill(temp.at(i)); //Going to become redundant as we make a function to take a vector and fill a histogram.
 		}
-	
-		
+		i++;
+		}
 	}
-
-	TCanvas* c1 = new TCanvas("c1", "Temperature on a Day Throughout the Years", 900, 600);
-	double mean = hist->GetMean();
-	double stdev = hist->GetRMS();
-
-
-	//Style Settings
-	gStyle->SetOptStat(0); //Let's make our plots look a bit better. Get rid of the stat box
-	gStyle->SetOptTitle(0); //Get rid of the title (good plots use legends instead)
-	gStyle->SetTitleSize(0.05, "x"); //Use bigger text on the axes
-	gStyle->SetTitleSize(0.05, "y");
-	gStyle->SetLabelSize(0.05, "x"); //Use bigger labels too
-	gStyle->SetLabelSize(0.05, "y");
-	gStyle->SetPadTopMargin(0.05); //Change the margins to fit our new sizes
-	gStyle->SetPadRightMargin(0.05);
-	gStyle->SetPadBottomMargin(0.16);
-	gStyle->SetPadLeftMargin(0.16);
+	cout<<i<<endl;
+	f.close();
+	TCanvas* c1 = new TCanvas("c1", "Temperature on a Given Day Throughout the Years", 900, 600);
+	//double mean = hist->GetMean();
+	//double stdev = hist->GetRMS();
 	
 	//Set color and the minimum at 0
 	hist->SetFillColor(kBlue);
@@ -128,7 +80,7 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 
 	//Draw it and save it
 	hist->Draw();	
-	c1->SaveAs("TempOnDayHist.jpg");	
+	c1->SaveAs("TempOnDay.jpg");	
 }
 
 vector<std::string> tempTrender::split(string s, string delimiter){
@@ -144,23 +96,17 @@ vector<std::string> tempTrender::split(string s, string delimiter){
 		return res;
 }
 
-void tempTrender::delete_lines(const char *file_name, int n){
-	
-	ifstream is(file_name);
-	ofstream ofs;
-	ofs.open("temp.csv", ofstream::out);
-	char c;
-	int line_no=1;
-	while (is.get(c)){
-		if(c == '\n'){
-		line_no++;}
-		if (line_no > n){
-		ofs << c;}
-		}
-//		cout << line_no << endl;
-		ofs.close();
-		is.close();
-		remove(file_name);
-		rename("temp.csv", file_name);
-	}
+
+void tempTrender::VectorConstructor(vector<double> &vect, string &s){
+			double OverWriteDouble=0.0;
+			stringstream VtoD(s);
+			VtoD>>OverWriteDouble;
+			vect.push_back(OverWriteDouble);
+}
+
+void tempTrender::StoI(int &var, string &s){
+			stringstream SD(s);
+			SD>>var;
+}
+
 

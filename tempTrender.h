@@ -6,7 +6,7 @@
 //This is the file that will contain the list of data and function members
 class tempTrender {
 	public:
-	tempTrender(std::string filePath); //Construct using the specified file
+	tempTrender(string filePath); //Construct using the specified file
 	~tempTrender() {} //Destructor
 	
 	//Main Functions
@@ -21,14 +21,15 @@ class tempTrender {
 	
 	
 	//Auxiliary Functions
-	void delete_lines(const char *file_name, int n);
-	vector<std::string> split(string s, string delimiter);
-
+	void VectorConstructor(vector<double> &vect, string &s);
+	void StoI(int &var, string &s);
+	vector<string> split(string s, string delimiter);
+	
 	private:
 	int monthToCalculate;
 	int dayToCalculate;
-	const char *file_name;
-	int n;//This needs to be more descriptive
+	double OverWriteDouble;
+	vector<double> vect;
 	string s;//This needs to be more descriptive
 	string delimiter;
 };
