@@ -5,6 +5,9 @@
 #include <vector>
 //This is the file that will contain the list of data and function members
 class tempTrender {
+	//Path to File
+	string FilePath;
+	
 	public:
 	tempTrender(string filePath); //Construct using the specified file
 	~tempTrender() {} //Destructor
@@ -22,16 +25,17 @@ class tempTrender {
 	
 	//Auxiliary Functions
 	void VectorConstructor(vector<double> &vect, string &s);
-	void StoI(int &var, string &s);
 	vector<string> split(string s, string delimiter);
-	
+
 	private:
+	//Private Variables
 	int monthToCalculate;
 	int dayToCalculate;
 	double OverWriteDouble;
 	vector<double> vect;
-	string s;//This needs to be more descriptive
+	string s;
 	string delimiter;
+
 };
 
 #endif

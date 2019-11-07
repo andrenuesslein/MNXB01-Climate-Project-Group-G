@@ -1,3 +1,4 @@
+//This is the implementation file
 #include <iostream>
 #include <vector>
 #include <string>
@@ -13,41 +14,39 @@
 
 using namespace std;
 
-//This is the implementation file
 
-
-
+//We can pass by pointers within here and set the year/month/day/etc for each dataset
+//Alternatively create a function that will 
 tempTrender::tempTrender(string filePath) {
 	cout << "The user supplied " << filePath << " as the path to the data file." << endl;
-	cout << "You should probably store this information in a member variable of the class. Good luck with the project! :)" << endl;
+	FilePath = filePath;
 }
 
-//What does this function do?
+
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
+	
 	//Create Vectors to contain all data.
 	vector<double> year, month, day, time, temp;
 	//Indexing value for the constructed vectors.
-	int i=0, junk=0;
+	int i=0, start=0;
 	//Creating a value which will continually be overwritten by the string value
 	double OverWriteDouble=0.0;
-	ifstream f("datasets/smhi-openda_Karlstad.csv"); //opening the file for reading //change to filepath
+	
+	//Opening The File to be Read.
+	ifstream f(FilePath.c_str());
 	if (f.fail()){
 		cerr<<"Could not open file.\n";
 	}
-	//Histogram
+	
+	//Histogram that will contain the data from the csv files.
 	TH1D* hist = new TH1D("Histogram","Temperature On a Day Throughout the Years; Temperature[#circC]; Entries", 300, -20,40);
 	
-	//Pruning Initial Entries.
-	for (int j=0; j<10 ; j++){
-		f.ignore(5000, '\n');
-	}		
-
+	//Pruning the Data
 	while (getline(f, s, '\n')){
-		if (junk == 0 ){
-			StoI(junk, s);
-			 }
-		else{
-			//Sorting the relevant data into vectors
+		if (s.find("Datum") != std::string::npos){
+			start++;
+		}
+		if (start>0){
 			getline(f, s, '-');
 				VectorConstructor(year, s);	
 			getline(f, s, '-');
@@ -59,14 +58,12 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 			getline(f, s, ';');
 				VectorConstructor(temp, s);
 			f.ignore(400, '\n');
-			//If the data 
 			if (month.at(i) == monthToCalculate && day.at(i) == dayToCalculate){
-				hist->Fill(temp.at(i)); //Going to become redundant as we make a function to take a vector and fill a histogram.
-		}
-		i++;
+					hist->Fill(temp.at(i)); 
+			}
+			i++;
 		}
 	}
-	cout<<i<<endl;
 	f.close();
 	TCanvas* c1 = new TCanvas("c1", "Temperature on a Given Day Throughout the Years", 900, 600);
 	//double mean = hist->GetMean();
@@ -102,11 +99,6 @@ void tempTrender::VectorConstructor(vector<double> &vect, string &s){
 			stringstream VtoD(s);
 			VtoD>>OverWriteDouble;
 			vect.push_back(OverWriteDouble);
-}
-
-void tempTrender::StoI(int &var, string &s){
-			stringstream SD(s);
-			SD>>var;
 }
 
 
