@@ -20,12 +20,12 @@ tempTrender::tempTrender(string filePath) {
 	cout << "You should probably store this information in a member variable of the class. Good luck with the project! :)" << endl;
 }
 
+//What does this function do?
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
-
-
 
 delete_lines("smhi-openda_Karlstad_1.csv", 12);
 ifstream f("smhi-openda_Karlstad_1.csv"); //opening the file for reading
+
 if (f.fail()){
 	cout<<"Could not open file.\n";
 }
@@ -38,6 +38,7 @@ char delim = '\n';
 char ddel = '-';
 double temp;
 vector<double> temps;
+
 while (f.getline(fline, 256, delim)) 
 {
 vector<string> v = split(fline, ";");
