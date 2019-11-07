@@ -61,9 +61,18 @@ TCanvas* c1 = new TCanvas("c1", "Temperature on a Day Throughout the Years", 900
 double mean = hist->GetMean();
 double stdev = hist->GetRMS();
 
-hist->SetFillColor(kRed);
+//Set color and the minimum at 0
+hist->SetFillColor(kBlue);
 hist->SetMinimum(0);
 
+// Set ROOT drawing styles
+gStyle->SetOptStat(1111);
+gStyle->SetOptFit(1111);
+
+//Fit it with a Gaussian
+hist->Fit("gaus");
+
+//Draw it and save it
 hist->Draw();	
 c1->SaveAs("TempOnDayHist.jpg");	
 }
