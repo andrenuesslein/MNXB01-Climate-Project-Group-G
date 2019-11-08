@@ -79,7 +79,7 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	c1->SaveAs("TempOnDay.jpg");	
 }
 
-void tempTrender::tempPerDay(double yearToPlot, double Hour){
+void tempTrender::tempPerDay(double Year, double Hour){
 	//This is the way to generate the data vectors in every function.
 	vector<double> year, month, day, time, temp;
 	//Opening The File to be Read.

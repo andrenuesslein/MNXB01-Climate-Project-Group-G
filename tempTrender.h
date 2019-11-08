@@ -25,7 +25,6 @@ class tempTrender {
 	
 	//Auxiliary Functions
 	void VectorConstructor(vector<double> &vect, string &s);
-	vector<string> split(string s, string delimiter);
 	void Reader(ifstream &file, vector<double> &v1, vector<double> &v2, vector<double> &v3, vector<double> &v4, vector<double> &v5);
 	
 	private:
@@ -33,6 +32,7 @@ class tempTrender {
 	int monthToCalculate;
 	int dayToCalculate;
 	double Hour;
+	double Year;
 	double OverWriteDouble;
 	vector<double> vect;
 	string s;
