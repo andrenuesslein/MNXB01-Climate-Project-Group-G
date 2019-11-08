@@ -7,6 +7,7 @@ void project() {
 	tempTrender t(pathToFile); //Instantiate your analysis object
 	
 	t.tempOnDay(8, 23); //Call some functions that you've implemented
+	t.Seasons(12.);
 	//t.tempOnDay(235);
 	//t.tempPerDay();
 	//t.hotCold();

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <TF1.h> // 1d function class
 #include <TH1.h> // 1d histogram classes
+#include <TGraph.h> //Graphing Classes
 #include <TStyle.h>  // style object
 #include <TMath.h>   // math functions
 #include <TCanvas.h> // canvas object
@@ -80,6 +81,35 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	c1->SaveAs("TempOnDay.jpg");	
 }
 
+void tempTrender::Seasons(double Hour){
+	//This is the way to generate the data vectors in every function.
+	vector<double> year, month, day, time, temp;
+
+	//Opening The File to be Read.
+	ifstream f("datasets/smhi-openda_Karlstad.csv");
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
+	}
+	
+	//Extract All Data
+	Reader(f, year, month, day, time, temp);
+	f.close();
+	//Seasons
+	TCanvas* Seasons = new TCanvas("Seasons","Temperature fluctuations over time.");
+	vector<double> t, TatHr;//time and Temp. at Hour
+	double days;
+	for (size_t i= 0;  i<time.size() ; i++){
+		if ( time.at(i) == Hour){
+			t.push_back(days);
+			TatHr.push_back(temp.at(i));
+			days++;	
+		}
+	}
+	TGraph* Graph= new TGraph(days, &t[0], &TatHr[0]);
+	Graph->SetTitle("Temperature over Time; Time (Days);Temperature[#circC]");
+	Graph->Draw();		
+}
+
 vector<std::string> tempTrender::split(string s, string delimiter){
 		size_t start=0, end, dlen = delimiter.length();
 		string token;
@@ -99,6 +129,31 @@ void tempTrender::VectorConstructor(vector<double> &vect, string &s){
 			stringstream VtoD(s);
 			VtoD>>OverWriteDouble;
 			vect.push_back(OverWriteDouble);
+}
+
+
+void tempTrender::Reader(ifstream &file, vector<double> &v1, vector<double> &v2, vector<double> &v3, vector<double> &v4, vector<double> &v5){
+	string s;
+	int start=0;
+
+	while (getline(file, s, '\n')){
+		if (s.find("Datum") != string::npos){ //This statement can be used to find locations where the variable in the find() field, useful for time.
+			start++;
+		}
+		if (start>0){
+			getline(file, s, '-');
+				VectorConstructor(v1, s);	
+			getline(file, s, '-');
+				VectorConstructor(v2, s);	
+			getline(file, s, ';');
+				VectorConstructor(v3, s);	
+			getline(file, s, ';');
+				VectorConstructor(v4, s);
+			getline(file, s, ';');
+				VectorConstructor(v5, s);
+			file.ignore(400, '\n');
+		}
+	}
 }
 
 
