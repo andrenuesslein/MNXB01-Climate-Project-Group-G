@@ -79,11 +79,11 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	c1->SaveAs("TempOnDay.jpg");	
 }
 
-void tempTrender::tempPerDay(double Year, double Hour){
+void tempTrender::tempPerDay(double YearToRead, double Hour){
 	//This is the way to generate the data vectors in every function.
 	vector<double> year, month, day, time, temp;
 	//Opening The File to be Read.
-	ifstream f("smhi-openda_Karlstad.csv");
+	ifstream f(FilePath.c_str());
 	if (f.fail()){
 		cerr<<"Could not open file.\n";
 	}
@@ -94,7 +94,7 @@ void tempTrender::tempPerDay(double Year, double Hour){
 	TH1D* hist = new TH1D("Histogram","Temperature Throughout a Year; Day of the year; Temperature[#circC]", 357, 0, 356);	
 	int bin=0;
 	for (size_t i= 0;  i<time.size() ; i++){
-		if ( year.at(i) == yearToPlot && time.at(i) == Hour){
+		if ( year.at(i) == YearToRead && time.at(i) == Hour){
 			hist->SetBinContent(bin, temp.at(i));
 			bin++;
 		}
