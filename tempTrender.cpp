@@ -54,6 +54,10 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	hist->SetMinimum(0);
 	//Fit it with a Gaussian
 	hist->Fit("gaus");
+	
+	//Show Mean of fot and data (and other stuff)
+	gStyle->SetOptStat(1111);
+	gStyle->SetOptFit(1111);
 
 	//Draw it and save it
 	hist->Draw();	
@@ -77,6 +81,7 @@ void tempTrender::tempPerDay(double Year, double Hour){
 	for (size_t i= 0;  i<time.size() ; i++){
 		if ( year.at(i) == Year && time.at(i) == Hour){
 			hist->SetBinContent(bin, temp.at(i));
+			hist->SetBinError(bin, sqrt(abs(temp.at(i))));
 			bin++;
 		}
 	}	
@@ -89,6 +94,53 @@ void tempTrender::tempPerDay(double Year, double Hour){
 	//Draw it and save it
 	hist->Draw();	
 	b1->SaveAs("TempThroughoutYear.jpg");
+	
+}
+
+void tempTrender::hotCold(){
+	vector<double> year, month, day, time, temp;
+	//Opening The File to be Read.
+	ifstream f(FilePath.c_str());
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
+	}
+	//Extract All Data
+	Reader(f, year, month, day, time, temp);
+	f.close();
+		
+	TH1D* hist = new TH1D("Histogram","Hottest Temperature in a Year; Day of the year; Temperature[#circC]", 357, 0, 356);	
+
+	int RR = 430000;
+	int CC = 12;
+	
+	vector<vector<double> > matrix(RR);
+	for (size_t i = 0; i < RR; i++){
+		matrix[i].resize(CC);
+	}
+
+    double FirstYear = year.at(0);
+    double LastYear = year.at(-1);
+    int NumberOfYears = LastYear - FirstYear + 1; //This still needs to be converted to an integer
+    ofstream myfile;
+    myfile.open("LunchTempMatrix.txt");
+    
+    double Year = FirstYear; //Year we start from
+    int k = 0; // For counting through all the data
+	for (size_t i= 0;  i< NumberOfYears ; i++){ //I am not sure what size_t is and if it can be used as a matrix argument
+		int l = 0; //For counting all the days
+		while ( year.at(k) == Year && time.at(k) == 12.){ //We want to put the noon temperatures of every day in a year in one line of a matrix
+			matrix[i][l] = temp.at(k);
+			myfile << matrix[i][l] << ",";
+			k++;
+			l++;
+		}
+		Year++;
+	}
+	
+	myfile.close();
+	
+	//Once the above is working, we need to find minimum and maximum
+	
 }
 
 void tempTrender::Seasons(double Hour){
