@@ -8,8 +8,9 @@ void project() {
 	
 	t.tempOnDay(8, 23); //Call some functions that you've implemented
 	t.Seasons(12.);
+	t.tempPerDay(2004., 12.);
 	//t.tempOnDay(235);
-	t.tempPerDay(1960, 12);
+	//t.tempPerDay();
 	//t.hotCold();
 	//t.tempPerYear(2050);
 }
