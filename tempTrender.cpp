@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <TF1.h> // 1d function class
 #include <TH1.h> // 1d histogram classes
+#include <TGraph.h> //Graphing Classes
 #include <TStyle.h>  // style object
 #include <TMath.h>   // math functions
 #include <TCanvas.h> // canvas object
@@ -15,8 +16,6 @@
 using namespace std;
 
 
-//We can pass by pointers within here and set the year/month/day/etc for each dataset
-//Alternatively create a function that will 
 tempTrender::tempTrender(string filePath) {
 	cout << "The user supplied " << filePath << " as the path to the data file." << endl;
 	FilePath = filePath;
@@ -80,25 +79,96 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	c1->SaveAs("TempOnDay.jpg");	
 }
 
-vector<std::string> tempTrender::split(string s, string delimiter){
-		size_t start=0, end, dlen = delimiter.length();
-		string token;
-		vector<string> res;
-		while ((end = s.find(delimiter, start)) != string::npos){
-			token = s.substr(start, end - start);
-			start = end + dlen;
-			res.push_back(token);
+void tempTrender::tempPerDay(double Year, double Hour){
+	//This is the way to generate the data vectors in every function.
+	vector<double> year, month, day, time, temp;
+	//Opening The File to be Read.
+	ifstream f("smhi-openda_Karlstad.csv");
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
+	}
+	//Extract All Data
+	Reader(f, year, month, day, time, temp);
+	f.close();
+	//TempPerDay
+	TH1D* hist = new TH1D("Histogram","Temperature Throughout a Year; Day of the year; Temperature[#circC]", 357, 0, 356);	
+	int bin=0;
+	for (size_t i= 0;  i<time.size() ; i++){
+		if ( year.at(i) == yearToPlot && time.at(i) == Hour){
+			hist->SetBinContent(bin, temp.at(i));
+			bin++;
 		}
-		res.push_back(s.substr(start));
-		return res;
+	}	
+	TCanvas* b1 = new TCanvas("b1", "Temperature Throughout one year", 900, 600);
+	//Set color
+	hist->SetFillColor(kBlue);
+	// Set ROOT drawing styles
+	gStyle->SetOptStat(1111);
+	gStyle->SetOptFit(1111);
+	//Draw it and save it
+	hist->Draw();	
+	b1->SaveAs("TempThroughoutYear.jpg");
 }
 
+void tempTrender::Seasons(double Hour){
+	//This is the way to generate the data vectors in every function.
+	vector<double> year, month, day, time, temp;
+
+	//Opening The File to be Read.
+	ifstream f("datasets/smhi-openda_Karlstad.csv");
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
+	}
+	
+	//Extract All Data
+	Reader(f, year, month, day, time, temp);
+	f.close();
+	//Seasons
+	TCanvas* Seasons = new TCanvas("Seasons","Temperature fluctuations over time.");
+	vector<double> t, TatHr;//time and Temp. at Hour
+	double days;
+	for (size_t i= 0;  i<time.size() ; i++){
+		if ( time.at(i) == Hour){
+			t.push_back(days);
+			TatHr.push_back(temp.at(i));
+			days++;	
+		}
+	}
+	TGraph* Graph= new TGraph(days, &t[0], &TatHr[0]);
+	Graph->SetTitle("Temperature over Time; Time (Days);Temperature[#circC]");
+	Graph->Draw();		
+}
 
 void tempTrender::VectorConstructor(vector<double> &vect, string &s){
 			double OverWriteDouble=0.0;
 			stringstream VtoD(s);
 			VtoD>>OverWriteDouble;
 			vect.push_back(OverWriteDouble);
+}
+
+
+void tempTrender::Reader(ifstream &file, vector<double> &v1, vector<double> &v2, vector<double> &v3, vector<double> &v4, vector<double> &v5){
+	string s;
+	int start=0;
+
+	while (getline(file, s, '\n')){
+		if (s.find("Datum") != string::npos){ //This statement can be used to find locations where the variable in the find() field, useful for time.
+			start++;
+		}
+		if (start>0){
+			getline(file, s, '-');
+				VectorConstructor(v1, s);	
+			getline(file, s, '-');
+				VectorConstructor(v2, s);	
+			getline(file, s, ';');
+				VectorConstructor(v3, s);	
+			getline(file, s, ';');
+				VectorConstructor(v4, s);
+			getline(file, s, ';');
+				VectorConstructor(v5, s);
+			file.ignore(400, '\n');
+		}
+	}
 }
 
 

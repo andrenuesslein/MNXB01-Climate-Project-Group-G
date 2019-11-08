@@ -14,7 +14,7 @@ class tempTrender {
 	
 	//Main Functions
 	void tempOnDay(int monthToCalculate, int dayToCalculate); //Make a histogram of the temperature on this day
-	
+	void Seasons(double Hour); //Make Graph of Temperature on a given hour every day.
 	
 	
 	//void tempOnDay(int dateToCalculate); //Make a histogram of the temperature on this date
@@ -25,12 +25,14 @@ class tempTrender {
 	
 	//Auxiliary Functions
 	void VectorConstructor(vector<double> &vect, string &s);
-	vector<string> split(string s, string delimiter);
-
+	void Reader(ifstream &file, vector<double> &v1, vector<double> &v2, vector<double> &v3, vector<double> &v4, vector<double> &v5);
+	
 	private:
 	//Private Variables
 	int monthToCalculate;
 	int dayToCalculate;
+	double Hour;
+	double Year;
 	double OverWriteDouble;
 	vector<double> vect;
 	string s;
