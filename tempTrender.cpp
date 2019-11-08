@@ -16,8 +16,6 @@
 using namespace std;
 
 
-//We can pass by pointers within here and set the year/month/day/etc for each dataset
-//Alternatively create a function that will 
 tempTrender::tempTrender(string filePath) {
 	cout << "The user supplied " << filePath << " as the path to the data file." << endl;
 	FilePath = filePath;
@@ -81,6 +79,37 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	c1->SaveAs("TempOnDay.jpg");	
 }
 
+void tempTrender::tempPerDay(double yearToPlot, double Hour){
+	//This is the way to generate the data vectors in every function.
+	vector<double> year, month, day, time, temp;
+	//Opening The File to be Read.
+	ifstream f("smhi-openda_Karlstad.csv");
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
+	}
+	//Extract All Data
+	Reader(f, year, month, day, time, temp);
+	f.close();
+	//TempPerDay
+	TH1D* hist = new TH1D("Histogram","Temperature Throughout a Year; Day of the year; Temperature[#circC]", 357, 0, 356);	
+	int bin=0;
+	for (size_t i= 0;  i<time.size() ; i++){
+		if ( year.at(i) == yearToPlot && time.at(i) == Hour){
+			hist->SetBinContent(bin, temp.at(i));
+			bin++;
+		}
+	}	
+	TCanvas* b1 = new TCanvas("b1", "Temperature Throughout one year", 900, 600);
+	//Set color
+	hist->SetFillColor(kBlue);
+	// Set ROOT drawing styles
+	gStyle->SetOptStat(1111);
+	gStyle->SetOptFit(1111);
+	//Draw it and save it
+	hist->Draw();	
+	b1->SaveAs("TempThroughoutYear.jpg");
+}
+
 void tempTrender::Seasons(double Hour){
 	//This is the way to generate the data vectors in every function.
 	vector<double> year, month, day, time, temp;
@@ -109,20 +138,6 @@ void tempTrender::Seasons(double Hour){
 	Graph->SetTitle("Temperature over Time; Time (Days);Temperature[#circC]");
 	Graph->Draw();		
 }
-
-vector<std::string> tempTrender::split(string s, string delimiter){
-		size_t start=0, end, dlen = delimiter.length();
-		string token;
-		vector<string> res;
-		while ((end = s.find(delimiter, start)) != string::npos){
-			token = s.substr(start, end - start);
-			start = end + dlen;
-			res.push_back(token);
-		}
-		res.push_back(s.substr(start));
-		return res;
-}
-
 
 void tempTrender::VectorConstructor(vector<double> &vect, string &s){
 			double OverWriteDouble=0.0;
