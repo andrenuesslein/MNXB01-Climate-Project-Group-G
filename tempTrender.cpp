@@ -16,54 +16,35 @@
 using namespace std;
 
 
-tempTrender::tempTrender(string filePath) {
+tempTrender::tempTrender(string filePath){
 	cout << "The user supplied " << filePath << " as the path to the data file." << endl;
 	FilePath = filePath;
 }
 
 
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
-	
-	//Create Vectors to contain all data.
+	//This is the way to generate the data vectors in every function.
 	vector<double> year, month, day, time, temp;
-	//Indexing value for the constructed vectors.
-	int i=0, start=0;
-	//Creating a value which will continually be overwritten by the string value
-	double OverWriteDouble=0.0;
 	
 	//Opening The File to be Read.
 	ifstream f(FilePath.c_str());
 	if (f.fail()){
 		cerr<<"Could not open file.\n";
 	}
-	
+	//Extract All Data
+	Reader(f, year, month, day, time, temp);
+	f.close();
 	//Histogram that will contain the data from the csv files.
 	TH1D* hist = new TH1D("Histogram","Temperature On a Day Throughout the Years; Temperature[#circC]; Entries", 300, -20,40);
 	
 	//Pruning the Data
-	while (getline(f, s, '\n')){
-		if (s.find("Datum") != std::string::npos){
-			start++;
-		}
-		if (start>0){
-			getline(f, s, '-');
-				VectorConstructor(year, s);	
-			getline(f, s, '-');
-				VectorConstructor(month, s);	
-			getline(f, s, ';');
-				VectorConstructor(day, s);	
-			getline(f, s, ';');
-				VectorConstructor(time, s);
-			getline(f, s, ';');
-				VectorConstructor(temp, s);
-			f.ignore(400, '\n');
-			if (month.at(i) == monthToCalculate && day.at(i) == dayToCalculate){
+	for (size_t i= 0;  i<month.size() ; i++){
+		if (month.at(i) == monthToCalculate && day.at(i) == dayToCalculate){
 					hist->Fill(temp.at(i)); 
+					i++;
 			}
-			i++;
 		}
-	}
-	f.close();
+
 	TCanvas* c1 = new TCanvas("c1", "Temperature on a Given Day Throughout the Years", 900, 600);
 	//double mean = hist->GetMean();
 	//double stdev = hist->GetRMS();
@@ -79,7 +60,7 @@ void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
 	c1->SaveAs("TempOnDay.jpg");	
 }
 
-void tempTrender::tempPerDay(double YearToRead, double Hour){
+void tempTrender::tempPerDay(double Year, double Hour){
 	//This is the way to generate the data vectors in every function.
 	vector<double> year, month, day, time, temp;
 	//Opening The File to be Read.
@@ -94,7 +75,7 @@ void tempTrender::tempPerDay(double YearToRead, double Hour){
 	TH1D* hist = new TH1D("Histogram","Temperature Throughout a Year; Day of the year; Temperature[#circC]", 357, 0, 356);	
 	int bin=0;
 	for (size_t i= 0;  i<time.size() ; i++){
-		if ( year.at(i) == YearToRead && time.at(i) == Hour){
+		if ( year.at(i) == Year && time.at(i) == Hour){
 			hist->SetBinContent(bin, temp.at(i));
 			bin++;
 		}
@@ -113,13 +94,12 @@ void tempTrender::tempPerDay(double YearToRead, double Hour){
 void tempTrender::Seasons(double Hour){
 	//This is the way to generate the data vectors in every function.
 	vector<double> year, month, day, time, temp;
-
+	
 	//Opening The File to be Read.
-	ifstream f("datasets/smhi-openda_Karlstad.csv");
+	ifstream f(FilePath.c_str());
 	if (f.fail()){
 		cerr<<"Could not open file.\n";
 	}
-	
 	//Extract All Data
 	Reader(f, year, month, day, time, temp);
 	f.close();
@@ -139,36 +119,39 @@ void tempTrender::Seasons(double Hour){
 	Graph->Draw();		
 }
 
-void tempTrender::VectorConstructor(vector<double> &vect, string &s){
-			double OverWriteDouble=0.0;
-			stringstream VtoD(s);
-			VtoD>>OverWriteDouble;
-			vect.push_back(OverWriteDouble);
-}
-
 
 void tempTrender::Reader(ifstream &file, vector<double> &v1, vector<double> &v2, vector<double> &v3, vector<double> &v4, vector<double> &v5){
-	string s;
-	int start=0;
+	string s, date="-", semi=";";
+	int start=0, i=0;
 
 	while (getline(file, s, '\n')){
+		if (start>0){
+			split(v1, s, date);
+			split(v2, s, date);
+			split(v3, s, semi);
+			split(v4, s, semi);
+			split(v5, s, semi);
+		}
+		
 		if (s.find("Datum") != string::npos){ //This statement can be used to find locations where the variable in the find() field, useful for time.
 			start++;
 		}
-		if (start>0){
-			getline(file, s, '-');
-				VectorConstructor(v1, s);	
-			getline(file, s, '-');
-				VectorConstructor(v2, s);	
-			getline(file, s, ';');
-				VectorConstructor(v3, s);	
-			getline(file, s, ';');
-				VectorConstructor(v4, s);
-			getline(file, s, ';');
-				VectorConstructor(v5, s);
-			file.ignore(400, '\n');
-		}
 	}
+}
+
+			
+void tempTrender::split(vector<double> &vect, string &s, string &delimiter){
+		size_t start=0, end, dlen = delimiter.length();
+		double var;
+		string token;
+		if ((end = s.find(delimiter, start )) != string::npos){
+			token = s.substr(start, end - start);
+			stringstream SD(token);
+			SD>>var;
+			start = end + dlen;
+			vect.push_back(var);
+			s = s.substr(start);
+		}
 }
 
 
