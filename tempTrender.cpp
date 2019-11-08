@@ -1,3 +1,4 @@
+//This is the implementation file
 #include <iostream>
 #include <vector>
 #include <string>
@@ -13,68 +14,70 @@
 
 using namespace std;
 
-//This is the implementation file
 
+//We can pass by pointers within here and set the year/month/day/etc for each dataset
+//Alternatively create a function that will 
 tempTrender::tempTrender(string filePath) {
 	cout << "The user supplied " << filePath << " as the path to the data file." << endl;
-	cout << "You should probably store this information in a member variable of the class. Good luck with the project! :)" << endl;
+	FilePath = filePath;
 }
+
 
 void tempTrender::tempOnDay(int monthToCalculate, int dayToCalculate){
-
-
-
-delete_lines("smhi-openda_Karlstad_1.csv", 12);
-ifstream f("smhi-openda_Karlstad_1.csv"); //opening the file for reading
-if (f.fail()){
-	cout<<"Could not open file.\n";
-}
-
-TH1D* hist = new TH1D("Histogram","Temperature On a Day Throughout the Years; Temperature[#circC]; Entries", 300, -20,40);
-
-f.ignore(256, '\n');
-char fline[256];
-char delim = '\n';
-char ddel = '-';
-double temp;
-vector<double> temps;
-while (f.getline(fline, 256, delim)) 
-{
-vector<string> v = split(fline, ";");
-temp = atof(v.at(2).c_str()); //turns string into double
-
-vector<string> date = split(v.at(0), "-");
-int year;
-int month;
-int day;
-istringstream(date[0]) >> year;
-istringstream(date[1]) >> month;
-istringstream(date[2]) >> day;
-if (month == monthToCalculate && day == dayToCalculate){
-	temps.push_back(temp);
-	hist->Fill(temp); //Going to become redundant as we make a function to take a vector and fill a histogram.
+	
+	//Create Vectors to contain all data.
+	vector<double> year, month, day, time, temp;
+	//Indexing value for the constructed vectors.
+	int i=0, start=0;
+	//Creating a value which will continually be overwritten by the string value
+	double OverWriteDouble=0.0;
+	
+	//Opening The File to be Read.
+	ifstream f(FilePath.c_str());
+	if (f.fail()){
+		cerr<<"Could not open file.\n";
 	}
-}
-f.close();
+	
+	//Histogram that will contain the data from the csv files.
+	TH1D* hist = new TH1D("Histogram","Temperature On a Day Throughout the Years; Temperature[#circC]; Entries", 300, -20,40);
+	
+	//Pruning the Data
+	while (getline(f, s, '\n')){
+		if (s.find("Datum") != std::string::npos){
+			start++;
+		}
+		if (start>0){
+			getline(f, s, '-');
+				VectorConstructor(year, s);	
+			getline(f, s, '-');
+				VectorConstructor(month, s);	
+			getline(f, s, ';');
+				VectorConstructor(day, s);	
+			getline(f, s, ';');
+				VectorConstructor(time, s);
+			getline(f, s, ';');
+				VectorConstructor(temp, s);
+			f.ignore(400, '\n');
+			if (month.at(i) == monthToCalculate && day.at(i) == dayToCalculate){
+					hist->Fill(temp.at(i)); 
+			}
+			i++;
+		}
+	}
+	f.close();
+	TCanvas* c1 = new TCanvas("c1", "Temperature on a Given Day Throughout the Years", 900, 600);
+	//double mean = hist->GetMean();
+	//double stdev = hist->GetRMS();
+	
+	//Set color and the minimum at 0
+	hist->SetFillColor(kBlue);
+	hist->SetMinimum(0);
+	//Fit it with a Gaussian
+	hist->Fit("gaus");
 
-TCanvas* c1 = new TCanvas("c1", "Temperature on a Day Throughout the Years", 900, 600);
-double mean = hist->GetMean();
-double stdev = hist->GetRMS();
-
-//Set color and the minimum at 0
-hist->SetFillColor(kBlue);
-hist->SetMinimum(0);
-
-// Set ROOT drawing styles
-gStyle->SetOptStat(1111);
-gStyle->SetOptFit(1111);
-
-//Fit it with a Gaussian
-hist->Fit("gaus");
-
-//Draw it and save it
-hist->Draw();	
-c1->SaveAs("TempOnDayHist.jpg");	
+	//Draw it and save it
+	hist->Draw();	
+	c1->SaveAs("TempOnDay.jpg");	
 }
 
 vector<std::string> tempTrender::split(string s, string delimiter){
@@ -90,23 +93,12 @@ vector<std::string> tempTrender::split(string s, string delimiter){
 		return res;
 }
 
-void tempTrender::delete_lines(const char *file_name, int n){
-	
-	ifstream is(file_name);
-	ofstream ofs;
-	ofs.open("temp.csv", ofstream::out);
-	char c;
-	int line_no=1;
-	while (is.get(c)){
-		if(c == '\n'){
-		line_no++;}
-		if (line_no > n){
-		ofs << c;}
-		}
-//		cout << line_no << endl;
-		ofs.close();
-		is.close();
-		remove(file_name);
-		rename("temp.csv", file_name);
-	}
+
+void tempTrender::VectorConstructor(vector<double> &vect, string &s){
+			double OverWriteDouble=0.0;
+			stringstream VtoD(s);
+			VtoD>>OverWriteDouble;
+			vect.push_back(OverWriteDouble);
+}
+
 
